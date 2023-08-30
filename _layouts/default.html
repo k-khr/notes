@@ -5,24 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% seo %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
-
-    <!-- The loading of KaTeX is deferred to speed up page rendering -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha384-cpW21h6RZv/phavutF+AuVYrr+dA8xD9zs6FwLpaCct6O9ctzYFfFr4dgmgccOTx" crossorigin="anonymous"></script>
-
-    <!-- To automatically render math in text elements, include the auto-render extension: -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
     <script>
         // https://tex2e.github.io/blog/latex/mathjax-to-katex
-        document.addEventListener("DOMContentLoaded", function() {
-            $("script[type='math/tex']").replaceWith(function () {
-                var tex = $(this).text();
-                return "<span class=\"kdmath\">$" + tex + "$</span>";
+        document.addEventListener("DOMContentLoaded", () => {
+            // replace inline
+            document.querySelectorAll("script[type='math/tex']").forEach(el => {
+                const textNode = document.createTextNode("$" + el.textContent + "$");
+                const kdmathNode = document.createElement("span");
+                kdmathNode.className = "kdmath";
+                kdmathNode.appendChild(textNode);
+                el.replaceWith(kdmathNode);
             });
 
-            $("script[type='math/tex; mode=display']").replaceWith(function () {
-                var tex = $(this).text();
-                tex = tex.replace('% <![CDATA[', '').replace('%]]>', '');
-                return "<div class=\"kdmath\">$$" + tex + "$$</div>";
+            // replace display
+            document.querySelectorAll("script[type='math/tex; mode=display']").forEach(el => {
+                const textNode = document.createTextNode(
+                    "$$" + el.textContent.replace('% <![CDATA[', '').replace('%]]>', '') + "$$"
+                );
+                const kdmathNode = document.createElement("div");
+                kdmathNode.className = "kdmath";
+                kdmathNode.appendChild(textNode);
+                el.replaceWith(kdmathNode);
             });
 
             renderMathInElement(document.body, {
@@ -31,12 +36,18 @@
                 {left: "$", right: "$", display: false},
                 ]
             });
-            });
+        });
     </script>
 </head>
 <body>
     <article class="markdown-body">
         {{ content }}
     </article>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 3em 5vw;
+        }
+    </style>
 </body>
 </html>
